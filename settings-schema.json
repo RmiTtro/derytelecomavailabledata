@@ -1,0 +1,23 @@
+{
+    "username": {
+        "type" : "entry",
+        "default" : "",
+        "description" : "Username : "
+    },
+    
+    "password": {
+        "type" : "entry",
+        "default" : "",
+        "description" : "Password : "
+    },
+
+    "update_delay_minutes": {
+        "type" : "spinbutton",
+        "default" : 10,
+        "min" : 1,
+        "max" : 60,
+        "units": "minutes",
+        "step" : 1,
+        "description" : "Update delay :"
+    }
+}

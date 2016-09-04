@@ -1,0 +1,5 @@
+{
+    "uuid": "derytelecomavailabledata@remi.tetreault",
+    "name": "Derytelecom Available Data",
+    "description": "Query and display how many data are still available for the current month"
+}
