@@ -2,6 +2,7 @@ import requests
 from BeautifulSoup import BeautifulSoup
 
 from content import Content, InternetTraffic
+from wrap_attributes_in_dict import wrap_attributes_in_dict
 
 
 
@@ -24,17 +25,16 @@ class PARAM:
     LOGOUT = {'logout' : '1'}
 
     class CONTENT:
+        @wrap_attributes_in_dict("sub", {"content" : "internet"})
         class INTERNET:
-            _base = ('content', 'internet')
-            _key = 'sub'
-            TRAFFIC  = dict(( (_key, 'traffic'), _base ))
-            EMAIL    = dict(( (_key, 'email'), _base ))
-            WIRELESS = dict(( (_key, 'wireless'), _base ))
+            TRAFFIC  = "traffic"
+            EMAIL    = "email"
+            WIRELESS = "wireless"
 
+    @wrap_attributes_in_dict("lang")
     class LANG:
-        _key = 'lang'
-        FRA = {_key : 'fra'}
-        ENG = {_key : 'eng'}
+        FRA = "fra"
+        ENG = "eng"
 
 
 ########################################################################
