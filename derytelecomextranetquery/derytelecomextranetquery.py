@@ -11,10 +11,15 @@ from wrap_attributes_in_dict import wrap_attributes_in_dict
 ########################################################################
 BASE_URL = "https://extranet.derytelecom.ca/"
 INDEX_PAGE_NAME = "index.php"
+AUTH_PAGE_NAME = "auth_sess.php"
 
 INDEX_URL = BASE_URL + INDEX_PAGE_NAME
+AUTH_URL = BASE_URL + AUTH_PAGE_NAME
 
+COOKIE_NAME = "PHPSESSID"
 
+INPUT_LOGIN_NAME_SUFFIX = "_login"
+INPUT_PASSWORD_NAME_SUFFIX = "_password"
 
 
 class PARAM:
@@ -76,17 +81,16 @@ class DerytelecomExtranetQuery:
             r = session.get(BASE_URL)
             cls._check_response(r)
 
-            # Some informations must be retrived from the login page:
-            # the name of the login input and the name of the password
-            # input.
-            auth_page_name, input_login_name, input_password_name = \
-                cls._get_authpage_login_password_name(r.text)
+            cookie_value = r.cookies[COOKIE_NAME]
+
+            input_login_name = cookie_value + INPUT_LOGIN_NAME_SUFFIX
+            input_password_name = cookie_value + INPUT_PASSWORD_NAME_SUFFIX
 
             # This is the part where a connection is established with
             # the Extranet
             payload = {input_login_name    : username,
                        input_password_name : password}
-            r = session.post(BASE_URL + auth_page_name, data=payload)
+            r = session.post(AUTH_URL, data=payload)
             cls._check_response(r)
 
             return cls(session)
@@ -95,24 +99,7 @@ class DerytelecomExtranetQuery:
             session.close()
             raise
 
-    @staticmethod
-    def _get_authpage_login_password_name(html_page):
-        # Retrieve the name of the login input and the name of the
-        # password input.
-        # The name of these elements change everytime, that is why
-        # it isn't hard coded in the source.
 
-        soup = BeautifulSoup(html_page)
-
-        form = soup.form
-
-        input_login, input_password = form.findAll("input")[0:2]
-        input_login_name = input_login['name']
-        input_password_name = input_password['name']
-
-        auth_page_name = form['action']
-
-        return auth_page_name, input_login_name, input_password_name
 
     @staticmethod
     def _check_response(response):
