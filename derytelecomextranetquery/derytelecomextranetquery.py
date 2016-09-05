@@ -1,4 +1,5 @@
 import requests
+import urlparse
 from BeautifulSoup import BeautifulSoup
 
 from content import Content, InternetTraffic
@@ -27,7 +28,9 @@ class PARAM:
     parameters used to access the pages that are available once loged on
     the Derytelecom extranet."""
 
-    LOGOUT = {'logout' : '1'}
+    # The list is necessary for a comparison with the params returned
+    # by urlparse.parse_qs
+    LOGOUT = {'logout' : ['1']}
 
     class CONTENT:
         @wrap_attributes_in_dict("sub", {"content" : "internet"})
@@ -40,6 +43,34 @@ class PARAM:
     class LANG:
         FRA = "fra"
         ENG = "eng"
+
+
+
+
+########################################################################
+# Helper functions
+########################################################################
+def dict_contain(dict_a, dict_b):
+    """Test if all the key:value pairs of dict_b are in dict_a.
+
+    Arguments:
+    dict_a -- The dictionary
+
+    dict_b -- The sub-dictionary
+
+    Return:
+    True if all the key:value pairs of dict_b are in dict_a,
+    False otherwise
+    """
+
+    if len(dict_b) > len(dict_a): return False
+
+    for k,v in dict_b.iteritems():
+        if not (k in dict_a and dict_a[k] == v):
+            return False
+
+    return True
+
 
 
 ########################################################################
@@ -59,6 +90,7 @@ class DerytelecomExtranetQuery:
         """This constructor should not be used"""
         self._connected = True
         self._session = session
+
 
     @classmethod
     def connect(cls, username, password):
@@ -92,6 +124,8 @@ class DerytelecomExtranetQuery:
                        input_password_name : password}
             r = session.post(AUTH_URL, data=payload)
             cls._check_response(r)
+            if cls._is_logout(r):
+                raise BadUsernamePasswordError()
 
             return cls(session)
 
@@ -113,6 +147,19 @@ class DerytelecomExtranetQuery:
             raise HTTPNotOKError(response.url,
                                  status_code,
                                  response.reason)
+
+    @staticmethod
+    def _is_logout(response):
+        # This static method test if we got logged out of the
+        # Derytelecom Extranet
+        # If we got logged out, return True, else return False
+
+        url = response.url
+        params = urlparse.parse_qs(urlparse.urlparse(url).query)
+
+        # We are logged out if we have the logout param in the url
+        return dict_contain(params, PARAM.LOGOUT)
+
 
 
     @property
@@ -145,6 +192,8 @@ class DerytelecomExtranetQuery:
             payload.update(PARAM.LANG.ENG)
             r = self._session.get(INDEX_URL, params = payload)
             self._check_response(r)
+            if self._is_logout(r):
+                raise UnexpectedLogOutError()
 
             return content_class(r.text)
 
@@ -196,6 +245,31 @@ class HTTPNotOKError(Exception):
 
         self.msg = "Reaching '{}' returned this status code: {} {}" \
                    .format(url, status_code, reason)
+
+    def __str__(self):
+        return self.msg
+
+
+class BadUsernamePasswordError(Exception):
+    """This exception is raised when trying to log on the Derytelecom
+    extranet fail because of a bad Username or Password.
+    """
+
+    def __init__(self):
+        self.msg = ("Impossible to log on the Derytelecom Extranet, "
+                    "bad Username or Password")
+
+    def __str__(self):
+        return self.msg
+
+
+class UnexpectedLogOutError(Exception):
+    """This exception is raised when a query fail because of a
+    unexpected log out of the Derytelecom Extranet.
+    """
+
+    def __init__(self):
+        self.msg = "Unexpected Log Out of the Derytelecom Extranet"
 
     def __str__(self):
         return self.msg
