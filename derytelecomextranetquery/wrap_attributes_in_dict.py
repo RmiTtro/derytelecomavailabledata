@@ -1,7 +1,7 @@
 class wrap_attributes_in_dict(object):
-    """This class decorator wrap each attribute of the decorated class in
-    a dictionary in which the key used is the key specified to the decorator and
-    the value is the value of the attribute.
+    """This class decorator wrap each attribute of the decorated class
+    in a dictionary in which the key used is the key specified to the
+    decorator and the value is the value of the attribute.
 
     For example, the following two class definition are equivalent:
         @wrap_attributes_in_dict("lang")
@@ -17,11 +17,11 @@ class wrap_attributes_in_dict(object):
     Arguments:
     key           -- the key to use in the wrapping dictionaries
 
-    *args         -- if others dictionaries are passed as parameters, they are
-                     appended to the wrapping dictionaries
+    *args         -- if others dictionaries are passed as parameters,
+                     they are appended to the wrapping dictionaries
 
-    **kargs       -- dictionaries to append can also be passed as keywords
-                     arguments
+    **kargs       -- dictionaries to append can also be passed as
+                     keywords arguments
     """
 
     def __init__(self, key, *args, **kargs):

@@ -1,15 +1,25 @@
 import re
 from BeautifulSoup import BeautifulSoup
 
-# String constants used to retrive some element on the Internet > Traffic page
+
+########################################################################
+# Constants
+########################################################################
+# String constants used to retrive some element on the
+# Internet > Traffic page
 AVAILABLE_STRING = "Available"
 USED_STRING = "Used"
 
 
+
+########################################################################
+# Classes
+########################################################################
 class Content:
     """Basic class used to act as an interface for the web pages
     retrived from the Derytelecom extranet. It should be subclassed
-    instead of being used directly."""
+    instead of being used directly.
+    """
 
     def __init__(self, html_page):
         self._soup = BeautifulSoup(html_page)
@@ -20,15 +30,15 @@ class InternetTraffic(Content):
     """
 
     def get_string_after_colon(self, string_before_colon):
-        """The Internet > Trafic page contain a lot of strings that are
-        separated by colon. Pass the string before the colon and this
-        method will return the string that is after the colon.
+        """The Internet > Trafic page contain a lot of strings that
+        are separated by colon. Pass the string before the colon and
+        this method will return the string that is after the colon.
 
         Example:
             Supose on the web page you have something like this:
                 Available: 60.3 Gb
-            If you pass the string "Available" to this method, it should
-            return you "60.3 Gb".
+            If you pass the string "Available" to this method,
+            it should return you "60.3 Gb".
 
         Argument:
         string_before_colon -- the string before the colon
@@ -62,19 +72,19 @@ class InternetTraffic(Content):
         # If available is an empty string, that probably mean that the
         # Available string is no longer displayed
         # Don't really know why, but it seem that when there are less
-        # than 15 Gb of available data the Available string is no longer
-        # displayed
+        # than 15 Gb of available data the Available string is no
+        # longer displayed
         # When that happen, we find the Used string that we then use to
         # reach the span element that contain the strings that display
         # the remaining data
         if available == "":
             # Find Used string
-            used_elem = self._soup.find(text=re.compile(USED_STRING))
+            used_elem = self._soup.find(text = re.compile(USED_STRING))
 
             if used_elem:
                 # Reach the span that contain the remaining data strings
-                av_elem = used_elem.parent.parent \
-                    .findNextSibling("div").find("span")
+                av_elem = (used_elem.parent.parent
+                           .findNextSibling("div").find("span"))
 
                 # Get the remaining data strings (start from 1 to skip
                 # the newline)
@@ -82,6 +92,6 @@ class InternetTraffic(Content):
 
                 # Remove irrevelant spaces and joins the strings
                 available = " ".join(s.string.strip()
-                    for s in available_strings)
+                                     for s in available_strings)
 
         return available
