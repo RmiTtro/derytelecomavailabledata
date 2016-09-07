@@ -55,9 +55,9 @@ JAVASCRIPT_URL_TEMPLATE = (
 
 
 class PARAM:
-    """This class contain various constants that represent url
+    """This class contain various constants that represent URL
     parameters used to access the pages that are available once
-    loged on the Derytelecom extranet.
+    logged on the Derytelecom extranet.
     """
 
     # The list is necessary for a comparison with the params returned
@@ -164,7 +164,7 @@ class DerytelecomExtranetQuery:
 
     @staticmethod
     def open_in_webbrowser(params = {}, username = "", password = ""):
-        """Open the index url in the webbrowser using the value of
+        """Open the index URL in the webbrowser using the value of
         params to make the query string. If the module PyUserInput
         is available and the username and password parameters were
         passed, the login form will be automatically filled and
@@ -172,7 +172,7 @@ class DerytelecomExtranetQuery:
 
         Arguments:
         params   -- a dict that contain the parameters to use in the
-                    query string of the url (optional)
+                    query string of the URL (optional)
         username -- the username to use to log in (optional)
         password -- the password to use to log in (optional)
         """
@@ -183,9 +183,9 @@ class DerytelecomExtranetQuery:
         # This part is to automatically log in the Derytelecom Extranet
         # It work by simulating keyboard event
         # It put the focus on the address bar of the browser (Ctrl-L)
-        # and then it write some javascript code (using javascript uri
+        # and then it write some JavaScript code (using JavaScript uri
         # javascipt:)
-        # The javascript code wait for the page to finish loading
+        # The JavaScript code wait for the page to finish loading
         # and then it fill and submit the form
         # It was done this way because it is more reliable than
         # directly writing the username and password since the
@@ -200,7 +200,7 @@ class DerytelecomExtranetQuery:
             k.tap_key('l')
             k.release_key(k.control_l_key)
 
-            # Write the Javascript code
+            # Write the JavaScript code
             k.type_string(JAVASCRIPT_URL_TEMPLATE
                           .format(username,password))
             k.tap_key(k.enter_key)
@@ -228,7 +228,7 @@ class DerytelecomExtranetQuery:
         url = response.url
         params = urlparse.parse_qs(urlparse.urlparse(url).query)
 
-        # We are logged out if we have the logout param in the url
+        # We are logged out if we have the logout param in the URL
         return dict_contain(params, PARAM.LOGOUT)
 
 
@@ -244,12 +244,12 @@ class DerytelecomExtranetQuery:
 
     def get_content(self, content_param, content_class=Content):
         """Retrieve the web page that is associated with the specified
-        content url parameter. That web page is then encapsulated in
+        content URL parameter. That web page is then encapsulated in
         the specified Content class.
 
 
         Arguments:
-        content_param -- the content url param that needed to obtain
+        content_param -- the content URL param that needed to obtain
                          the desired web page
         content_class -- the class to use to encapsulte the retrived
                          web page
