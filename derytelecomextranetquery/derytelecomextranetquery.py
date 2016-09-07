@@ -1,6 +1,15 @@
 import requests
 import urlparse
+import urllib
+import webbrowser
+import time
 from BeautifulSoup import BeautifulSoup
+
+try:
+    from pykeyboard import PyKeyboard
+except ImportError:
+    PyKeyboard = None
+
 
 from content import Content, InternetTraffic
 from wrap_attributes_in_dict import wrap_attributes_in_dict
@@ -21,6 +30,28 @@ COOKIE_NAME = "PHPSESSID"
 
 INPUT_LOGIN_NAME_SUFFIX = "_login"
 INPUT_PASSWORD_NAME_SUFFIX = "_password"
+
+
+# Delay before the AutoLogin code is executed
+SLEEP_DELAY = 2
+
+
+# This JavaScript URI code is used to fill and submit the form on
+# the authentication page
+JAVASCRIPT_URL_TEMPLATE = (
+    "javascript:function f(){{"
+        "document.querySelector('[name$=" + INPUT_LOGIN_NAME_SUFFIX
+        + "]').value='{}';"
+        "document.querySelector('[name$=" + INPUT_PASSWORD_NAME_SUFFIX
+        + "]').value ='{}';"
+        "document.querySelector('[name=loginform]').submit();"
+    "}} "
+    "if(document.readyState!=='loaded'){{"
+        "f();"
+    "}}else{{"
+        "window.addEventListener('load', f, false);"
+    "}}")
+
 
 
 class PARAM:
@@ -44,8 +75,6 @@ class PARAM:
     class LANG:
         FRA = "fra"
         ENG = "eng"
-
-
 
 
 ########################################################################
@@ -132,6 +161,49 @@ class DerytelecomExtranetQuery:
             session.close()
             raise
 
+
+    @staticmethod
+    def open_in_webbrowser(params = {}, username = "", password = ""):
+        """Open the index url in the webbrowser using the value of
+        params to make the query string. If the module PyUserInput
+        is available and the username and password parameters were
+        passed, the login form will be automatically filled and
+        submited by using keyboard events.
+
+        Arguments:
+        params   -- a dict that contain the parameters to use in the
+                    query string of the url (optional)
+        username -- the username to use to log in (optional)
+        password -- the password to use to log in (optional)
+        """
+
+        url = INDEX_URL + "?" + urllib.urlencode(params)
+        webbrowser.open_new(url)
+
+        # This part is to automatically log in the Derytelecom Extranet
+        # It work by simulating keyboard event
+        # It put the focus on the address bar of the browser (Ctrl-L)
+        # and then it write some javascript code (using javascript uri
+        # javascipt:)
+        # The javascript code wait for the page to finish loading
+        # and then it fill and submit the form
+        # It was done this way because it is more reliable than
+        # directly writing the username and password since the
+        # loading time of the page is inconsistent and there is no way
+        # from Python to know that the page as finished loading
+        if PyKeyboard and username and password:
+            k = PyKeyboard()
+            time.sleep(SLEEP_DELAY)
+
+            # Ctrl-L
+            k.press_key(k.control_l_key)
+            k.tap_key('l')
+            k.release_key(k.control_l_key)
+
+            # Write the Javascript code
+            k.type_string(JAVASCRIPT_URL_TEMPLATE
+                          .format(username,password))
+            k.tap_key(k.enter_key)
 
 
     @staticmethod
