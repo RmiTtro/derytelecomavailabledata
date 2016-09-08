@@ -64,17 +64,36 @@ class PARAM:
     # by urlparse.parse_qs
     LOGOUT = {"logout" : ["1"]}
 
+    @wrap_attributes_in_dict("content")
     class CONTENT:
-        @wrap_attributes_in_dict("sub", {"content" : "internet"})
-        class INTERNET:
-            TRAFFIC  = "traffic"
-            EMAIL    = "email"
-            WIRELESS = "wireless"
+        PROFIL      = "profil"
+        INTERNET    = "internet"
+        TELEPHONIE  = "telephonie"
+        TELEVISION  = "television"
+        FACTURATION = "facturation"
+
+        @wrap_attributes_in_dict("sub", depth = 1)
+        class SUB:
+            class PROFIL:
+                PROFIL        = "profil"
+                PASSWORD      = "password"
+                NOTIFICATIONS = "notifications"
+
+            class INTERNET:
+                TRAFFIC  = "traffic"
+                EMAIL    = "email"
+                WIRELESS = "wireless"
+
+            class TELEPHONIE:
+                INTERURBAIN   = "interurbain"
+                VOICEMAIL     = "voicemail"
+                CALL_TRANSFER = "call_transfer"
 
     @wrap_attributes_in_dict("lang")
     class LANG:
         FRA = "fra"
         ENG = "eng"
+
 
 
 ########################################################################
@@ -277,9 +296,10 @@ class DerytelecomExtranetQuery:
         """Convenience method to retrive the internet traffic web page
         encapsulated in a InternetTrafic class.
         """
-
-        return self.get_content(PARAM.CONTENT.INTERNET.TRAFFIC,
-                                InternetTraffic)
+        params = {}
+        params.update(PARAM.CONTENT.INTERNET)
+        params.update(PARAM.CONTENT.SUB.INTERNET.TRAFFIC)
+        return self.get_content(params, InternetTraffic)
 
 
 
