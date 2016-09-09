@@ -39,9 +39,8 @@ class wrap_attributes_in_dict(object):
         key = self.key
         depth = self.depth
         args = self.args
-        class_dict = cls.__dict__
 
-        for k, v in class_dict.iteritems():
+        for k, v in vars(cls).iteritems():
             if not k.startswith("__"):
                 type_of_attribute = type(v)
                 # If the attribute is a class (old and new style)
@@ -53,6 +52,6 @@ class wrap_attributes_in_dict(object):
                     dt = {key : v}
                     for a in args:
                         dt.update(a)
-                    class_dict[k] = dt
+                    setattr(cls, k, dt)
 
         return cls
