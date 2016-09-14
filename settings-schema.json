@@ -4,7 +4,7 @@
         "default" : "",
         "description" : "Username : "
     },
-    
+
     "password": {
         "type" : "entry",
         "default" : "",
@@ -19,5 +19,23 @@
         "units": "minutes",
         "step" : 1,
         "description" : "Update delay :"
+    },
+
+    "do_autologin" : {
+        "type" : "checkbox",
+        "default" : false,
+        "description" : "Autologin :"
+    },
+
+    "ok_color" : {
+        "type" : "colorchooser",
+        "default" : "rgb(0, 153, 51)",
+        "description" : "Ok color :"
+    },
+
+    "error_color" : {
+        "type" : "colorchooser",
+        "default" : "rgb(204, 0, 0)",
+        "description" : "Error color :"
     }
 }
