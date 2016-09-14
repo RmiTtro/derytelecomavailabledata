@@ -1,6 +1,6 @@
 import sys
 import argparse
-from derytelecomextranetquery import DerytelecomExtranetQuery, PARAM
+from derytelecomextranetquery import *
 
 
 
@@ -12,6 +12,7 @@ PAGES = {
     "television" : PARAM.CONTENT.TELEVISION,
     "invoicing" : PARAM.CONTENT.FACTURATION
 }
+
 
 SUBPAGES = {
     "address" : PARAM.CONTENT.SUB.PROFIL.PROFIL,
@@ -27,14 +28,25 @@ SUBPAGES = {
     "calltransfert" :PARAM.CONTENT.SUB.TELEPHONIE.CALL_TRANSFER
 }
 
+
 LANG = {
     "fra" : PARAM.LANG.FRA,
     "eng" : PARAM.LANG.ENG
 }
 
 
+EXITCODE_FOR_EXCEPTIONS = {
+    DerytelecomExtranetQueryException : 3,
+    InternetConnectionError : 4,
+    HTTPNotOKError : 5,
+    BadUsernamePasswordError : 6,
+    UnexpectedLogOutError : 7
+}
+
+
 
 def derytelecom_open(args):
+    parser = args.parser
     params = {}
     page = args.page
     subpage = args.subpage
@@ -50,17 +62,33 @@ def derytelecom_open(args):
 
 
 def derytelecom_get(args):
+    parser = args.parser
     data = args.data
     username = args.username
     password = args.password
 
     if data == 'availabledata':
-        with DerytelecomExtranetQuery.connect(username, password) as deq:
-            inet_traffic = deq.get_internettraffic()
-            available = inet_traffic.get_available()
-            print(available)
+        try:
+            with DerytelecomExtranetQuery.connect(username, password) as deq:
+                inet_traffic = deq.get_internettraffic()
+                available = inet_traffic.get_available()
+                print(available)
+
+        except DerytelecomExtranetQueryException as e:
+            exitcode = EXITCODE_FOR_EXCEPTIONS[type(e)]
+            parser.exit(exitcode, "error: {}\n".format(e))
+
+        except:
+            # For unknow exceptions, act as if they were
+            # DerytelecomExtranetQueryException exceptions,
+            # with the same exit code and error message.
+            exitcode = EXITCODE_FOR_EXCEPTIONS[
+                DerytelecomExtranetQueryException]
+            e = DerytelecomExtranetQueryException()
+            parser.exit(exitcode, "error: {}\n".format(e))
+
     else:
-        parser_get.error("'{}' is not a valid data to retrieve".format(data))
+        parser.error("'{}' is not a valid data to retrieve".format(data))
 
 
 
@@ -84,7 +112,7 @@ parser_open.add_argument('username', nargs='?', default='',
     help='the username to use to auto log in')
 parser_open.add_argument('password', nargs='?', default='',
     help='the password to use to auto log in')
-parser_open.set_defaults(func=derytelecom_open)
+parser_open.set_defaults(func=derytelecom_open, parser=parser_open)
 
 
 parser_get = subparsers.add_parser('get',
@@ -93,7 +121,7 @@ parser_get.add_argument('data', nargs='?', default='availabledata',
     help='the data to retrieve (default: availabledata)')
 parser_get.add_argument('username', help='the username to use to log in')
 parser_get.add_argument('password', help='the password to use to log in')
-parser_get.set_defaults(func=derytelecom_get)
+parser_get.set_defaults(func=derytelecom_get, parser=parser_get)
 
 
 args = parser.parse_args()

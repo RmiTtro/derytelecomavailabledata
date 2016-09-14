@@ -176,9 +176,12 @@ class DerytelecomExtranetQuery:
 
             return cls(session)
 
-        except:
+        except Exception as e:
             session.close()
-            raise
+            if isinstance(e, requests.RequestException):
+                raise InternetConnectionError()
+            else:
+                raise
 
 
     @staticmethod
@@ -278,15 +281,19 @@ class DerytelecomExtranetQuery:
         """
 
         if self._connected:
-            payload = content_param.copy()
-            # Access the english page
-            payload.update(PARAM.LANG.ENG)
-            r = self._session.get(INDEX_URL, params = payload)
-            self._check_response(r)
-            if self._is_logout(r):
-                raise UnexpectedLogOutError()
+            try:
+                payload = content_param.copy()
+                # Access the english page
+                payload.update(PARAM.LANG.ENG)
+                r = self._session.get(INDEX_URL, params = payload)
+                self._check_response(r)
+                if self._is_logout(r):
+                    raise UnexpectedLogOutError()
 
-            return content_class(r.text)
+                return content_class(r.text)
+
+            except requests.RequestException:
+                raise InternetConnectionError()
 
         else:
             return None
@@ -327,9 +334,47 @@ class DerytelecomExtranetQuery:
 ########################################################################
 # Exceptions
 ########################################################################
-class HTTPNotOKError(Exception):
+class DerytelecomExtranetQueryException(Exception):
+    """Base class for exceptions in this module.
+
+    Attributes:
+        msg  -- explanation of the error
+    """
+
+    def __init__(self):
+        self.msg = ("An unknown error occured")
+
+    def __str__(self):
+        return self.msg
+
+
+
+class InternetConnectionError(DerytelecomExtranetQueryException):
+    """This exception is raised when there seem to be a problem with the
+    internet connection.
+
+    Attributes:
+        msg  -- explanation of the error
+    """
+
+    def __init__(self):
+        self.msg = ("There seem to be a problem with the "
+                    "internet connection")
+
+    def __str__(self):
+        return self.msg
+
+
+
+class HTTPNotOKError(DerytelecomExtranetQueryException):
     """This exception is raised when a request return a response with a
     status code that is different of HTTP OK.
+
+    Attributes:
+        url         -- url of the request
+        status_code -- the status code of the response
+        reason      -- textual reason of the status code
+        msg         -- explanation of the error
     """
 
     def __init__(self, url, status_code, reason):
@@ -344,9 +389,13 @@ class HTTPNotOKError(Exception):
         return self.msg
 
 
-class BadUsernamePasswordError(Exception):
+
+class BadUsernamePasswordError(DerytelecomExtranetQueryException):
     """This exception is raised when trying to log on the Derytelecom
     extranet fail because of a bad Username or Password.
+
+    Attributes:
+        msg  -- explanation of the error
     """
 
     def __init__(self):
@@ -357,9 +406,13 @@ class BadUsernamePasswordError(Exception):
         return self.msg
 
 
-class UnexpectedLogOutError(Exception):
+
+class UnexpectedLogOutError(DerytelecomExtranetQueryException):
     """This exception is raised when a query fail because of a
     unexpected log out of the Derytelecom Extranet.
+
+    Attributes:
+        msg  -- explanation of the error
     """
 
     def __init__(self):
