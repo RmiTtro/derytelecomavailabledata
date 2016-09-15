@@ -1,3 +1,17 @@
+# -*- coding: utf-8 -*-
+
+"""
+derytelecomextranetquery
+------------------------
+
+This module allows to perform queries to the Derytelecom Extranet.
+
+Copyright(c) 2016 Rémi Tétreault <tetreault.remi@gmail.com>
+MIT Licensed, see LICENSE for more details.
+"""
+
+
+
 import requests
 import urlparse
 import urllib

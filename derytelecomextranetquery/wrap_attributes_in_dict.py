@@ -1,3 +1,16 @@
+# -*- coding: utf-8 -*-
+
+"""
+wrap_attributes_in_dict
+-----------------------
+
+This module provide the wrap_attributes_in_dict class decorator.
+
+Copyright(c) 2016 Rémi Tétreault <tetreault.remi@gmail.com>
+MIT Licensed, see LICENSE for more details.
+"""
+
+
 import new
 
 class wrap_attributes_in_dict(object):

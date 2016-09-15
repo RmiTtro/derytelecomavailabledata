@@ -1,3 +1,17 @@
+# -*- coding: utf-8 -*-
+
+"""
+content
+-------
+
+This module provides classes to wrap the pages obtained from the
+Derytelecom Extranet.
+
+Copyright(c) 2016 Rémi Tétreault <tetreault.remi@gmail.com>
+MIT Licensed, see LICENSE for more details.
+"""
+
+
 import re
 from BeautifulSoup import BeautifulSoup
 

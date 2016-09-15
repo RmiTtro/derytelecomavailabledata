@@ -1,3 +1,16 @@
+# -*- coding: utf-8 -*-
+
+"""
+derytelecomextranetquery
+------------------------
+
+Main of the derytelecomextranetquery console application.
+
+Copyright(c) 2016 Rémi Tétreault <tetreault.remi@gmail.com>
+MIT Licensed, see LICENSE for more details.
+"""
+
+
 import sys
 import argparse
 from derytelecomextranetquery import *
