@@ -7,7 +7,7 @@ still available for the current month for the Derytelecom ISP.
 Installation
 -------------------------------------------------------------------------------
 To install, download this applet and decompress it
-in ~/.local/share/cinnamon/applets
+in `~/.local/share/cinnamon/applets/derytelecomavailabledata@remi.tetreault/`
 
 For the autologin feature you will also need to install
 [PyUserInput](https://github.com/PyUserInput/PyUserInput)
