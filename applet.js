@@ -23,6 +23,10 @@ const Util = imports.misc.util;
 //----------------------------------------------------------------------
 // Constants
 //----------------------------------------------------------------------
+// The values of these two constants will be set in the main function
+var UUID = null;
+var PYTHON_SCRIPT_PATH = null;
+
 const PYTHON_SCRIPT_NAME = "derytelecomextranetquery";
 
 const G_SPAWN_EXIT_ERROR =  GLib.spawn_exit_error_quark ();
@@ -182,44 +186,40 @@ MyApplet.prototype = {
                                                     metadata["uuid"],
                                                     instance_id);
 
+
+        // Note about bindProperty: The user_data parameter does not work in
+        // older version of Cinnamon
         this.settings.bindProperty(Settings.BindingDirection.IN,
                                    "username",
-                                   "username",
-                                   this.on_settings_changed,
-                                   null);
+                                   "username");
 
         this.settings.bindProperty(Settings.BindingDirection.IN,
                                    "password",
-                                   "password",
-                                   this.on_settings_changed,
-                                   null);
+                                   "password");
 
         this.settings.bindProperty(Settings.BindingDirection.IN,
                                    "update_delay_minutes",
-                                   "update_delay_minutes",
-                                   this.on_settings_changed,
+                                   "update_delay_minutes");
+
+        this.settings.bindProperty(Settings.BindingDirection.IN,
+                                   "do_autologin",
+                                   "do_autologin");
+
+        this.settings.bindProperty(Settings.BindingDirection.IN,
+                                   "ok_color",
+                                   "ok_color",
+                                   this.on_color_changed,
                                    null);
 
         this.settings.bindProperty(Settings.BindingDirection.IN,
-                                  "do_autologin",
-                                  "do_autologin",
-                                  this.on_settings_changed,
-                                  null);
-
-        this.settings.bindProperty(Settings.BindingDirection.IN,
-                                "ok_color",
-                                "ok_color",
-                                this.on_settings_changed,
-                                null);
-
-        this.settings.bindProperty(Settings.BindingDirection.IN,
-                                "error_color",
-                                "error_color",
-                                this.on_settings_changed,
-                                null);
+                                   "error_color",
+                                   "error_color",
+                                   this.on_color_changed,
+                                   null);
 
         this.applet_on_panel = true;
         this.clicked = false;
+        this.last_query_ok = false;
         this.set_applet_label("Error");
         this.loop();
     },
@@ -244,9 +244,11 @@ MyApplet.prototype = {
     update_label: function(exitcode, out_or_err) {
         if (this.check_exitcode(exitcode, out_or_err)) {
             let new_label = out_or_err.replace(/(\r\n|\n|\r)/gm, "");
+            this.last_query_ok = true;
             this._applet_label.set_style("color:" + this.ok_color);
             this.set_applet_label(new_label);
         } else {
+            this.last_query_ok = false;
             this._applet_label.set_style("color:" + this.error_color);
         }
     },
@@ -298,9 +300,12 @@ MyApplet.prototype = {
 
 
 
-    on_settings_changed: function() {
-        // Nothing here for now
-
+    on_color_changed: function() {
+        if (this.last_query_ok) {
+            this._applet_label.set_style("color:" + this.ok_color);
+        } else {
+            this._applet_label.set_style("color:" + this.error_color);
+        }
     },
 
 
